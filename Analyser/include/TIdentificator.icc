@@ -1,0 +1,430 @@
+#ifndef TIDENTIFICATOR_INLINES_H
+#define TIDENTIFICATOR_INLINES_H
+
+
+inline Float_t TIdentificator::NEvent()
+{
+    // Return the event number from HEAD bank.
+
+    return ((THEADERClass *) fCT->GetHEADER())->GetNEvent();
+}
+
+
+
+inline Double_t TIdentificator::Betta(Int_t k)
+{
+    // Return the velocity in the units of c for the particle in the row k of
+    // the EVNT bank.
+    //
+    //         betta = velocity / c,
+    //
+    // and c speed of light (c = 1)
+
+    fEVNT = (TEVNTClass *) fCT->GetBankRow("EVNT", k);
+    return fEVNT->Betta;
+}
+
+inline Double_t TIdentificator::Betta(Int_t k, Bool_t kind)
+{
+  if (kind == 0) {
+    fEVNT = (TEVNTClass *) fCT->GetBankRow("EVNT", k);
+    return fEVNT->Betta;
+  } else {
+    //fEVNT = (TEVNTClass *) fCT->GetBankRow("GSIM", k);
+    //return fEVNT->Betta;
+    return 0;
+  }
+}
+
+inline Double_t TIdentificator::Id(Int_t k, Bool_t kind)
+{
+    // Return the ID of the particle in the row k, from Particle Data Group
+    // (PDG), estimated from some preliminary analysis during data
+    // calibration.
+    //
+    // If kind is zero, the EVNT bank is used. If not, the GSIM bank is used
+    // instead.
+
+    if (kind == 0) {
+        fEVNT = (TEVNTClass *) fCT->GetBankRow("EVNT", k);
+        return fEVNT->Id;
+    } else {                            // Fix this in case kind != 1
+        fGSIM = (TGSIMClass *) fCT->GetBankRow("GSIM", k);
+        return fGSIM->Id;
+    }
+}
+
+
+
+inline Double_t TIdentificator::Charge(Int_t k, Bool_t kind)
+{
+    // Return the electrical charge for the particle in the row k of the EVNT
+    // bank.
+
+    if (kind == 0) {
+        fEVNT = (TEVNTClass *) fCT->GetBankRow("EVNT", k);
+        return fEVNT->Charge;
+    } else {                           
+        fGSIM = (TGSIMClass *) fCT->GetBankRow("GSIM", k);
+        return fGSIM->Charge;
+    }
+}
+
+
+
+inline Double_t TIdentificator::Px(Int_t k, Bool_t kind)
+{
+    // Return the momentum X component for the particle in the row k of the
+    // EVNT bank.
+    //
+    // If kind is zero, the EVNT bank is used. If not, the GSIM bank is used
+    // instead.
+
+    if (kind == 0) {
+        fEVNT = (TEVNTClass *) fCT->GetBankRow("EVNT", k);
+        return fEVNT->Px;
+    } else {                            // Fix this in case kind != 1
+        fGSIM = (TGSIMClass *) fCT->GetBankRow("GSIM", k);
+        return fGSIM->Px;
+    }
+}
+
+
+
+inline Double_t TIdentificator::Py(Int_t k, Bool_t kind)
+{
+    // Return the momentum Y component for the particle in the row k of the
+    // EVNT bank.
+    //
+    // If kind is zero, the EVNT bank is used. If not, the GSIM bank is used
+    // instead.
+
+    if (kind == 0) {
+        fEVNT = (TEVNTClass *) fCT->GetBankRow("EVNT", k);
+        return fEVNT->Py;
+    } else {                            // Fix this in case kind != 1
+        fGSIM = (TGSIMClass *) fCT->GetBankRow("GSIM", k);
+        return fGSIM->Py;
+    }
+}
+
+
+
+inline Double_t TIdentificator::Pz(Int_t k, Bool_t kind)
+{
+    // Return the momentum Z component for the particle in the row k of the
+    // EVNT bank.
+    //
+    // If kind is zero, the EVNT bank is used. If not, the GSIM bank is used
+    // instead.
+
+    if (kind == 0) {
+        fEVNT = (TEVNTClass *) fCT->GetBankRow("EVNT", k);
+        return fEVNT->Pz;
+    } else {                            // Fix this in case kind != 1
+        fGSIM = (TGSIMClass *) fCT->GetBankRow("GSIM", k);
+        return fGSIM->Pz;
+    }
+}
+
+
+
+inline Double_t TIdentificator::X(Int_t k)
+{
+    // Return the X coordinate for the particle in the row k of the EVNT bank.
+
+    fEVNT = (TEVNTClass *) fCT->GetBankRow("EVNT", k);
+    return fEVNT->X;
+}
+
+
+
+inline Double_t TIdentificator::Y(Int_t k)
+{
+    // Return the Y coordinate for the particle in the row k of the EVNT bank.
+
+    fEVNT = (TEVNTClass*)fCT->GetBankRow("EVNT",k);
+    return fEVNT->Y;
+}
+
+
+
+inline Double_t TIdentificator::Z(Int_t k, Bool_t kind)
+{
+    // Return the Z coordinate for the particle in the row k of the EVNT bank.
+
+    if (kind == 0) {
+        fEVNT = (TEVNTClass*)fCT->GetBankRow("EVNT",k);
+        return fEVNT->Z;
+    } else {                            // Fix this
+        fGSIM = (TGSIMClass *) fCT->GetBankRow("GSIM", k);
+        return fGSIM->Z;
+    }
+}
+
+
+
+inline Int_t TIdentificator::StatCC(Int_t k)
+{
+    // Return the CCPB key for the particle in the row k of the EVNT bank.
+
+    fEVNT = (TEVNTClass *) fCT->GetBankRow("EVNT", k);
+    return fEVNT->Ccstat;
+}
+
+
+
+inline Int_t TIdentificator::StatSC(Int_t k)
+{
+    // Return the SCPB key for the particle in the row k of the EVNT bank.
+
+    fEVNT = (TEVNTClass *) fCT->GetBankRow("EVNT", k);
+    return fEVNT->Scstat;
+}
+
+
+
+inline Int_t TIdentificator::StatDC(Int_t k)
+{
+    // Return the DCPB key for the particle in the row k of the EVNT bank.
+
+    fEVNT = (TEVNTClass *) fCT->GetBankRow("EVNT", k);
+    return fEVNT->Dcstat;
+}
+
+
+
+inline Int_t TIdentificator::StatEC(Int_t k)
+{
+    // Return the ECPB key for the particle in the row k of the EVNT bank.
+
+    fEVNT = (TEVNTClass *) fCT->GetBankRow("EVNT", k);
+    return fEVNT->Ecstat;
+}
+
+
+
+inline Double_t TIdentificator::Status(Int_t k)
+{
+    // Return the event general goodness status for the particle in the row k
+    // of the EVNT bank.
+
+    fEVNT = (TEVNTClass *) fCT->GetBankRow("EVNT", k);
+    return fEVNT->Status;
+}
+
+
+
+inline Double_t TIdentificator::Nphe(Int_t k)
+{
+    // Return the number of photo-electrons in the CCPB for the particle in
+    // the row k of the EVNT bank.
+
+    fEVNT = (TEVNTClass *) fCT->GetBankRow("EVNT", k);
+
+    if(fEVNT->Ccstat >= 1) {
+        Int_t ccst = fEVNT->Ccstat - 1;
+        fCCPB = (TCCPBClass *) fCT->GetBankRow("CCPB", ccst);
+        return fCCPB->Nphe;
+    } else {
+        return kGOOD;
+    }
+}
+
+
+
+inline Double_t TIdentificator::Chi2CC(Int_t k)
+{
+    // Return the track definition concordance in the CCPB for the particle in
+    // the row k of the EVNT bank.
+
+    fEVNT = (TEVNTClass *) fCT->GetBankRow("EVNT", k);
+
+    if (fEVNT->Ccstat >=1) {
+        Int_t cc_stat = fEVNT->Ccstat - 1;
+        fCCPB = (TCCPBClass *) fCT->GetBankRow("CCPB", cc_stat);
+        return fCCPB->Chi2cc;
+    } else {
+        return kGOOD;
+    }
+}
+
+
+
+inline Double_t TIdentificator::CCStatus(Int_t k)
+{
+    // Return the signal goodness in the CCPB for the particle in the row k of
+    // the EVNT bank.
+
+    fEVNT = (TEVNTClass *) fCT->GetBankRow("EVNT", k);
+
+    if (fEVNT->Ccstat >= 1) {
+        Int_t cc_stat = fEVNT->Ccstat - 1;
+        fCCPB = (TCCPBClass *) fCT->GetBankRow("CCPB", cc_stat);
+        return fCCPB->Status;
+    } else {
+        return kGOOD;
+    }
+}
+
+
+
+inline Double_t TIdentificator::DCStatus(Int_t k)
+{
+    // Return the signal goodness in the DCPB for the particle in the row k of
+    // the EVNT bank.
+
+    fEVNT = (TEVNTClass *) fCT->GetBankRow("EVNT", k);
+    if (fEVNT->Dcstat >= 1) {
+        Int_t dc_stat = fEVNT->Dcstat - 1;
+        fDCPB = (TDCPBClass *) fCT->GetBankRow("DCPB", dc_stat);
+        return fDCPB->Status;
+    } else {
+        return kGOOD;
+    }
+}
+
+
+
+inline Double_t TIdentificator::Etot(Int_t k)
+{
+    // Return total energy deposited in the calorimeter for the particle in
+    // the row k of the EVNT bank.
+
+    fEVNT = (TEVNTClass *) fCT->GetBankRow("EVNT", k);
+
+    if (fEVNT->Ecstat >= 1) {
+        Int_t ec_stat= fEVNT->Ecstat - 1;
+        fECPB = (TECPBClass *) fCT->GetBankRow("ECPB", ec_stat);
+        return fECPB->Etot;
+    } else {
+        return kGOOD;
+    }    
+}
+
+
+
+inline Double_t TIdentificator::Ein(Int_t k)
+{
+    // Return the energy deposited in the inner part of the calorimeter for
+    // the particle in the row k of the EVNT bank.
+
+    fEVNT = (TEVNTClass *) fCT->GetBankRow("EVNT", k);
+
+    if (fEVNT->Ecstat >= 1) {
+        Int_t ec_stat= fEVNT->Ecstat - 1;
+        fECPB = (TECPBClass *) fCT->GetBankRow("ECPB", ec_stat);
+        return fECPB->Ein;
+    } else {
+        return kGOOD;
+    }
+}
+
+
+
+inline Double_t TIdentificator::Eout(Int_t k)
+{
+    // Return the energy deposited in the outer part of the calorimeter for
+    // the particle in the row k of the EVNT bank.
+
+    fEVNT = (TEVNTClass *) fCT->GetBankRow("EVNT", k);
+
+    if (fEVNT->Ecstat >= 1) {
+        Int_t ec_stat= fEVNT->Ecstat - 1;
+        fECPB = (TECPBClass *) fCT->GetBankRow("ECPB", ec_stat);
+        return fECPB->Eout;
+    } else {
+        return kGOOD;
+    }
+}
+
+
+
+inline Double_t TIdentificator::ECStatus(Int_t k)
+{
+    // Return the signal goodness in the ECPB for the particle in the row k of
+    // the EVNT bank.
+
+    fEVNT = (TEVNTClass *) fCT->GetBankRow("EVNT", k);
+    if (fEVNT->Ecstat >= 1) {
+        Int_t ec_stat = fEVNT->Ecstat - 1;
+        fECPB = (TECPBClass *) fCT->GetBankRow("ECPB", ec_stat);
+        return fECPB->Status;
+    } else {
+        return kGOOD;
+    }
+}
+
+
+
+inline Double_t TIdentificator::PathSC(Int_t k)
+{
+    // Return the path length from target, in the SCPB, for the particle in
+    // the row k of the EVNT bank.
+
+    fEVNT = (TEVNTClass *) fCT->GetBankRow("EVNT", k);
+
+    if (fEVNT->Scstat >= 1) {
+        Int_t sc_stat = fEVNT->Scstat - 1;
+        fSCPB = (TSCPBClass *) fCT->GetBankRow("SCPB", sc_stat);
+        return fSCPB->Path;
+    } else {
+        return kGOOD;
+    }
+}
+
+
+
+inline Double_t TIdentificator::TimeSC(Int_t k)
+{
+    // Return the flight time relative to the event start time, in the SCPB,
+    // for the particle in the row k of the EVNT bank.
+
+    fEVNT = (TEVNTClass *) fCT->GetBankRow("EVNT", k);
+
+    if (fEVNT->Scstat >= 1) {
+        Int_t sc_stat = fEVNT->Scstat - 1;
+        fSCPB = (TSCPBClass *) fCT->GetBankRow("SCPB", sc_stat);
+        return fSCPB->Time;
+    } else {
+        return kGOOD;
+    }
+}
+
+
+
+inline Double_t TIdentificator::EdepSC(Int_t k)
+{
+    // Return the deposited energy (dE/dX) in the SCPB, for the particle in
+    // the row k of the EVNT bank.
+
+    fEVNT = (TEVNTClass *) fCT->GetBankRow("EVNT", k);
+
+    if (fEVNT->Scstat >= 1) {
+        Int_t sc_stat = fEVNT->Scstat - 1;
+        fSCPB = (TSCPBClass *) fCT->GetBankRow("SCPB", sc_stat);
+        return fSCPB->Edep;
+    } else {
+        return kGOOD;
+    }
+}
+
+
+
+inline Double_t TIdentificator::SCStatus(Int_t k)
+{
+    // Return the signal goodness in the SCPB for the particle in the row k of
+    // the EVNT bank.
+
+    fEVNT = (TEVNTClass *) fCT->GetBankRow("EVNT", k);
+
+    if (fEVNT->Scstat >= 1) {
+        Int_t sc_stat = fEVNT->Scstat -1;
+        fSCPB = (TSCPBClass *) fCT->GetBankRow("SCPB", sc_stat);
+        return fSCPB->Status;
+    } else {
+        return kGOOD;
+    }
+}
+
+#endif

@@ -14,11 +14,11 @@ TString fDataExt;
 TString fSimuExt;
 TString elecExt;
 TString pionExt;
-TString metals[4] = {"C", "Fe", "Pb", "DC", "DFe", "DPb"};
+TString metals[6] = {"C", "Fe", "Pb", "DC", "DFe", "DPb"};
 TString Metal;
 
 Int_t nSimuFiles;
-Int_t met = 4;
+Int_t met = 6;
 
 Double_t Q2_MIN;
 Double_t Q2_MAX;
@@ -56,6 +56,8 @@ Double_t *v_PHI;
 
 void getBinning(char **argv);
 void genAcceptance(TFile *f, TString Metal);
+TCut getCutData(TString Metal, Int_t q2i, Int_t xbi, Int_t pti, Int_t zhi, Int_t phii);
+TCut getCutSimul(Int_t q2i, Int_t xbi, Int_t pti, Int_t zhi, Int_t phii);
 
 // Create a TNtuple with data, accepted, thrown and acceptance in the binning specified 1 dimensional
 // Also possible to make 1 dimensional with Nu instead of Xb
@@ -127,7 +129,7 @@ void getBinning(char **argv){
 	v_XB = new Double_t[N_XB+1];
 	v_PT = new Double_t[N_PT+1];
 	v_PHI = new Double_t[N_PHI+1];
-	or(Int_t i = 0; i < N_Q2+1; i++){
+	for(Int_t i = 0; i < N_Q2+1; i++){
         if(i == 0) v_Q2[i] = Q2_MIN;
         else v_Q2[i] = v_Q2[i-1] + delta_Q2;
     }
@@ -172,7 +174,7 @@ void genAcceptance(TFile *f, TString Metal){
     TH1F *hData = new TH1F("hData", "", BinTot, 0, BinTot);
     TH1F *hAcc = new TH1F("hAcc", "", BinTot, 0, BinTot);
     TH1F *hThr = new TH1F("hThr", "", BinTot, 0, BinTot);
-    TH1F *hAcceptance = new TH1F("hAcceptance", BinTot, 0, BinTot);
+    TH1F *hAcceptance = new TH1F("hAcceptance", "", BinTot, 0, BinTot);
     TEventList *el;
     Int_t idx;
     
@@ -183,7 +185,7 @@ void genAcceptance(TFile *f, TString Metal){
     	for(Int_t xbi = 0; xbi < N_XB; xbi++){
     		for(Int_t pti = 0; pti < N_PT; pti++){
     			for(Int_t zhi = 0; zhi < N_ZH; zhi++){
-    				for(Int_t phii = 0; phi < N_PHI; phii++){
+    				for(Int_t phii = 0; phii < N_PHI; phii++){
     					idx = q2i*N_XB*N_ZH*N_PT*N_PHI+xbi*N_ZH*N_PT*N_PHI+pti*N_PT*N_PHI+zhi*N_PHI+phii;
     					
     					cut = getCutData(Metal, q2i, xbi, pti, zhi, phii);
@@ -211,9 +213,9 @@ void genAcceptance(TFile *f, TString Metal){
     hAcceptance->Divide(hData, hAcceptance, 1, 1);
     
     f->cd();
-    hData->Write(Form("hData%s", Metal));
-    hAcc->Write(Form("hAcc%s", Metal));
-    hThr->Write(Form("hThr%s", Metal));
+    hData->Write(Form("hData%s", (const char*) Metal));
+    hAcc->Write(Form("hAcc%s", (const char*) Metal));
+    hThr->Write(Form("hThr%s", (const char*) Metal));
     
     return;
 }
@@ -223,7 +225,7 @@ TCut getCutData(TString Metal, Int_t q2i, Int_t xbi, Int_t pti, Int_t zhi, Int_t
 	TCut liquid = "TargType==1";
     TCut solid = "TargType==2";
     TCut q2cut, xbcut, ptcut, zhcut, phicut;
-    if(Metal === "C" || Metal == "Fe" || Metal == "Pb") cut = solid;
+    if(Metal == "C" || Metal == "Fe" || Metal == "Pb") cut = solid;
     else cut = liquid;
     q2cut = Form("Q2>%f && Q2<%f", v_Q2[q2i], v_Q2[q2i+1]);
     xbcut = Form("Xb>%f && Xb<%f", v_XB[xbi], v_XB[xbi+1]);

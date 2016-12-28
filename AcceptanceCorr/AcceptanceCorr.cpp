@@ -81,12 +81,11 @@ int main(int argc, char **argv){
 	TFile *f = new TFile("out.root", "RECREATE");
 	
     saveBinning(f);
-    /*
+    
     for(Int_t i = 0; i < met; i++){
     	Metal = metals[i];
     	genAcceptance(f, Metal);
     }
-    */
     
     f->Close();
 	delete f;
@@ -255,7 +254,7 @@ TCut getCutData(TString Metal, Int_t q2i, Int_t xbi, Int_t pti, Int_t zhi, Int_t
     xbcut = Form("Xb>%f && Xb<%f", v_XB[xbi], v_XB[xbi+1]);
     ptcut = Form("Pt>%f && Pt<%f", v_PT[pti], v_PT[pti+1]);
     zhcut = Form("Zh>%f && Zh<%f", v_ZH[zhi], v_ZH[zhi+1]);
-    phicut = Form("Phi>%f && Phi<%f", v_PHI[phii], v_PHI[phii+1]);
+    phicut = Form("PhiPQ>%f && PhiPQ<%f", v_PHI[phii], v_PHI[phii+1]);
     cut = cut && q2cut && xbcut && ptcut && zhcut && phicut;
     
     return cut;   
@@ -268,7 +267,7 @@ TCut getCutSimul(Int_t q2i, Int_t xbi, Int_t pti, Int_t zhi, Int_t phii){
     xbcut = Form("Xb>%f && Xb<%f", v_XB[xbi], v_XB[xbi+1]);
     ptcut = Form("Pt>%f && Pt<%f", v_PT[pti], v_PT[pti+1]);
     zhcut = Form("Zh>%f && Zh<%f", v_ZH[zhi], v_ZH[zhi+1]);
-    phicut = Form("Phi>%f && Phi<%f", v_PHI[phii], v_PHI[phii+1]);
+    phicut = Form("PhiPQ>%f && PhiPQ<%f", v_PHI[phii], v_PHI[phii+1]);
     cut = cut && q2cut && xbcut && ptcut && zhcut && phicut;
     
     return cut;   

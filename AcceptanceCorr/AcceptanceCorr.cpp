@@ -55,6 +55,7 @@ Double_t *v_PT;
 Double_t *v_PHI;
 
 void getBinning(char **argv);
+void saveBinning(TFile *f);
 void genAcceptance(TFile *f, TString Metal);
 TCut getCutData(TString Metal, Int_t q2i, Int_t xbi, Int_t pti, Int_t zhi, Int_t phii);
 TCut getCutSimul(Int_t q2i, Int_t xbi, Int_t pti, Int_t zhi, Int_t phii);
@@ -78,11 +79,14 @@ int main(int argc, char **argv){
 	pionExt = (TString) argv[24];
 	
 	TFile *f = new TFile("out.root", "RECREATE");
-    
+	
+    saveBinning(f);
+    /*
     for(Int_t i = 0; i < met; i++){
     	Metal = metals[i];
     	genAcceptance(f, Metal);
     }
+    */
     
     f->Close();
 	delete f;
@@ -151,10 +155,35 @@ void getBinning(char **argv){
     }
 }
 
+void saveBinning(TFile *f){
+	TNtuple *bintuple = new TNtuple("bintuple", "bintuple", "Q2:Xb:Pt:Zh:Phi");
+	Float_t par[5];
+	Int_t N_MAX = 0;
+	if(N_MAX < N_Q2) N_MAX = N_Q2;
+	if(N_MAX < N_XB) N_MAX = N_XB;
+	if(N_MAX < N_PT) N_MAX = N_PT;
+	if(N_MAX < N_ZH) N_MAX = N_ZH;
+	if(N_MAX < N_PHI) N_MAX = N_PHI;
+	for(Int_t i = 0; i < N_MAX; i++){
+		if(i < N_Q2) par[0] = (v_Q2[i]+v_Q2[i+1])/2;
+		if(i < N_XB) par[1] = (v_XB[i]+v_XB[i+1])/2;
+		if(i < N_PT) par[2] = (v_PT[i]+v_PT[i+1])/2;
+		if(i < N_ZH) par[3] = (v_ZH[i]+v_ZH[i+1])/2;
+		if(i < N_PHI) par[4] = (v_PHI[i]+v_PHI[i+1])/2;
+		bintuple->Fill(par);
+	}
+	f->cd();
+	bintuple->Write();
+	bintuple->Delete();
+	
+	return;
+}
+
 void genAcceptance(TFile *f, TString Metal){
+	TString nTitle;
 	TString simuMetal;
-    Int_t BinTot = N_Q2*N_XB*N_PT*N_ZH*N_PHI;
     TCut cut;
+    Float_t nData, nAcc, nThr, nAcc_Thr, nAcceptance;
     
     TFile *fPion = new TFile(dataLoc + Metal + fDataExt + pionExt);
     TNtuple *ntuplePion = (TNtuple*) fPion->Get("data_pion");
@@ -162,21 +191,16 @@ void genAcceptance(TFile *f, TString Metal){
     if(Metal.Contains("D")) simuMetal = "D";
     else simuMetal = Metal;
     TChain *accept = new TChain("accept_pion");
-	for(Int_t q = 0; q < nSimuFiles; q++)
-		accept->Add(dataLoc + simuMetal + std::to_string(q+1) + fSimuExt + pionExt);
+	for(Int_t q = 0; q < nSimuFiles; q++) accept->Add(dataLoc + simuMetal + std::to_string(q+1) + fSimuExt + pionExt);
 	accept->SetEstimate(accept->GetEntries());
 		
 	TChain *thrown = new TChain("thrown_pion");
-	for(Int_t q = 0; q < nSimuFiles; q++)
-		thrown->Add(dataLoc + simuMetal + std::to_string(q+1) + fSimuExt + pionExt);
+	for(Int_t q = 0; q < nSimuFiles; q++) thrown->Add(dataLoc + simuMetal + std::to_string(q+1) + fSimuExt + pionExt);
 	thrown->SetEstimate(thrown->GetEntries());
-    
-    TH1F *hData = new TH1F("hData", "", BinTot, 0, BinTot);
-    TH1F *hAcc = new TH1F("hAcc", "", BinTot, 0, BinTot);
-    TH1F *hThr = new TH1F("hThr", "", BinTot, 0, BinTot);
-    TH1F *hAcceptance = new TH1F("hAcceptance", "", BinTot, 0, BinTot);
+	
+    nTitle = Form("%s_acceptance", (const char*) Metal);
+    TNtuple *ntuple = new TNtuple(nTitle, nTitle, "Q2i:Xbi:Pti:Zhi:Phii:Data:Acc:Thr:Acc_Thr:Acceptance");
     TEventList *el;
-    Int_t idx;
     
     // The sequence of the binning is the following
     // 1) Q2 2) Xb 3) Pt 4) Zh 5) Phi
@@ -186,36 +210,36 @@ void genAcceptance(TFile *f, TString Metal){
     		for(Int_t pti = 0; pti < N_PT; pti++){
     			for(Int_t zhi = 0; zhi < N_ZH; zhi++){
     				for(Int_t phii = 0; phii < N_PHI; phii++){
-    					idx = q2i*N_XB*N_ZH*N_PT*N_PHI+xbi*N_ZH*N_PT*N_PHI+pti*N_PT*N_PHI+zhi*N_PHI+phii;
-    					
     					cut = getCutData(Metal, q2i, xbi, pti, zhi, phii);
     					ntuplePion->Draw(">>listdata", cut, "goff");
 						el = (TEventList*) gDirectory->Get("listdata");
-    					hData->Fill(idx+0.5, el->GetN());
-    					
+    					nData = el->GetN();
     					cut = getCutSimul(q2i, xbi, pti, zhi, phii);
     					accept->Draw(">>listacc", cut, "goff");
     					el = (TEventList*) gDirectory->Get("listacc");
-    					hAcc->Fill(idx+0.5, el->GetN());
+    					nAcc = el->GetN();
     					thrown->Draw(">>listthr", cut, "goff");
     					el = (TEventList*) gDirectory->Get("listthr");
-    					hThr->Fill(idx+0.5, el->GetN());
+    					nThr = el->GetN();
+    					nAcc_Thr = nAcc/nThr;
+    					nAcceptance = nData/nAcc_Thr;
+    					ntuple->Fill(q2i, xbi, pti, zhi, phii, nData, nAcc, nThr, nAcc_Thr, nAcceptance);
     				}
     			}
     		}
     	}
     }
     
-    hData->Sumw2();
-    hAcc->Sumw2();
-    hThr->Sumw2();
-    hAcceptance->Divide(hAcc, hThr, 1, 1);
-    hAcceptance->Divide(hData, hAcceptance, 1, 1);
-    
+    fPion->Close();
+    delete fPion;
+        
     f->cd();
-    hData->Write(Form("hData%s", (const char*) Metal));
-    hAcc->Write(Form("hAcc%s", (const char*) Metal));
-    hThr->Write(Form("hThr%s", (const char*) Metal));
+    ntuple->Write();
+    ntuple->Delete();
+    
+    ntuplePion->Delete();
+    accept->Delete();
+    thrown->Delete();
     
     return;
 }
